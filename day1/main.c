@@ -48,13 +48,22 @@ int main(void)
     if (lines != NULL) {
         for (int i = 0; i < line_count; i++) {
             int value = atoi(&lines[i][1]);
-            if (lines[i][0] == 'L')
-                dial -= value;
-            else if (lines[i][0] == 'R')
-                dial += value;                        
-            dial = ((dial % 100) + 100) % 100;
-            if (dial == 0)
-                count ++;
+            if (lines[i][0] == 'L') {
+                for (int j = 0; j < value; j++){
+                    dial--;
+                    dial = ((dial % 100) + 100) % 100;
+                    if (dial == 0)
+                        count++;
+                }
+            }
+            else if (lines[i][0] == 'R'){
+                for (int j = 0; j < value; j++) {
+                    dial++;
+                    dial = ((dial % 100) + 100) % 100;
+                    if (dial == 0)
+                        count++;
+                }
+            }
             free(lines[i]);
         }
         free(lines);
