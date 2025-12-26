@@ -26,10 +26,25 @@ static int is_invalid_id(long long value)
 {
     char buffer[32];
     int len = snprintf(buffer, sizeof(buffer), "%lld", value);
-    if (len < 0 || (len % 2) != 0)
+    if (len <= 0)
         return 0;
-    int half = len / 2;
-    return strncmp(buffer, buffer + half, (size_t)half) == 0;
+    for (int pattern_len = 1; pattern_len <= len / 2; pattern_len++) {
+        if (len % pattern_len != 0)
+            continue;
+        int repeats = len / pattern_len;
+        if (repeats < 2)
+            continue;
+        int matched = 1;
+        for (int i = pattern_len; i < len; i++) {
+            if (buffer[i] != buffer[i % pattern_len]) {
+                matched = 0;
+                break;
+            }
+        }
+        if (matched)
+            return 1;
+    }
+    return 0;
 }
 
 static long long sum_invalid_in_range(long long start, long long end)
@@ -49,12 +64,12 @@ int main(void)
         char *token = strtok(content, ",\n\r");
         while (token != NULL) {
             char *dash = strchr(token, '-');
-            if (dash == NULL)
-                continue;
-            *dash = '\0';
-            long long start = atoll(token);
-            long long end = atoll(dash + 1);
-            total += sum_invalid_in_range(start, end);
+            if (dash != NULL) {
+                *dash = '\0';
+                long long start = atoll(token);
+                long long end = atoll(dash + 1);
+                total += sum_invalid_in_range(start, end);
+            }
             token = strtok(NULL, ",\n\r");
         }
         free(content);
